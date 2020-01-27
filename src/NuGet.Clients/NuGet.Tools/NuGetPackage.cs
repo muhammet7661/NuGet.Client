@@ -2,6 +2,7 @@
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System;
+using System.Collections.Generic;
 using System.ComponentModel.Composition;
 using System.ComponentModel.Design;
 using System.Globalization;
@@ -582,14 +583,14 @@ namespace NuGetVSExtension
 
         private void ShowManageLibraryPackageDialog(object sender, EventArgs e)
         {
-            NuGetUIThreadHelper.JoinableTaskFactory.RunAsync(async delegate
+            NuGetUIThreadHelper.JoinableTaskFactory.Run(async delegate
             {
-                await NuGetUIThreadHelper.JoinableTaskFactory.SwitchToMainThreadAsync();
-
                 if (ShouldMEFBeInitialized())
                 {
                     await InitializeMEFAsync();
                 }
+
+                await NuGetUIThreadHelper.JoinableTaskFactory.SwitchToMainThreadAsync();
 
                 string parameterString = null;
                 var args = e as OleMenuCmdEventArgs;
@@ -631,10 +632,7 @@ namespace NuGetVSExtension
 
                     MessageHelper.ShowWarningMessage(errorMessage, Resources.ErrorDialogBoxTitle);
                 }
-            }).FileAndForget(
-                          TelemetryUtility.CreateFileAndForgetEventName(
-                              nameof(NuGetPackage),
-                              nameof(ShowManageLibraryPackageDialog)));
+            });
         }
 
         private async Task<IVsWindowFrame> FindExistingSolutionWindowFrameAsync()
@@ -777,14 +775,14 @@ namespace NuGetVSExtension
 
         private void ShowManageLibraryPackageForSolutionDialog(object sender, EventArgs e)
         {
-            NuGetUIThreadHelper.JoinableTaskFactory.RunAsync(async delegate
+            NuGetUIThreadHelper.JoinableTaskFactory.Run(async delegate
             {
-                await NuGetUIThreadHelper.JoinableTaskFactory.SwitchToMainThreadAsync();
-
                 if (ShouldMEFBeInitialized())
                 {
                     await InitializeMEFAsync();
                 }
+
+                await NuGetUIThreadHelper.JoinableTaskFactory.SwitchToMainThreadAsync();
 
                 var windowFrame = await FindExistingSolutionWindowFrameAsync();
                 if (windowFrame == null)
@@ -807,10 +805,7 @@ namespace NuGetVSExtension
 
                     windowFrame.Show();
                 }
-            }).FileAndForget(
-                          TelemetryUtility.CreateFileAndForgetEventName(
-                              nameof(NuGetPackage),
-                              nameof(ShowManageLibraryPackageForSolutionDialog)));
+            });
         }
 
         /// <summary>
@@ -820,8 +815,6 @@ namespace NuGetVSExtension
         /// <param name="searchText">Search text.</param>
         private void Search(IVsWindowFrame windowFrame, string searchText)
         {
-            ThreadHelper.ThrowIfNotOnUIThread();
-
             if (string.IsNullOrWhiteSpace(searchText))
             {
                 return;
